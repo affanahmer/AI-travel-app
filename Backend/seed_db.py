@@ -67,7 +67,7 @@ destinations = [
         "activities": ["Sightseeing", "Photography", "Food Tours", "Museum"],
         "safety_rating": 4,
         "user_rating": 4.6,
-        "image": "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=800&q=80",
+        "image": "/destinations/lahore-fort.png",
         "description": "A UNESCO World Heritage Site showcasing Mughal architecture. Explore Sheesh Mahal, Badshahi Mosque, and the vibrant Food Street."
     },
     {
@@ -93,7 +93,7 @@ destinations = [
         "activities": ["Skiing", "Buddhism Sites", "Rafting", "Hiking"],
         "safety_rating": 4,
         "user_rating": 4.5,
-        "image": "https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=800&q=80",
+        "image": "/destinations/swat-valley.png",
         "description": "Known as the Switzerland of the East, Swat offers Malam Jabba ski resort, ancient Buddhist ruins, and lush green valleys."
     },
     {
@@ -119,7 +119,7 @@ destinations = [
         "activities": ["Sightseeing", "History", "Museum", "Photography"],
         "safety_rating": 4,
         "user_rating": 4.2,
-        "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80",
+        "image": "/destinations/mohenjo-daro.png",
         "description": "A UNESCO World Heritage Site and one of the earliest urban civilizations dating back to 2500 BCE in the Indus Valley."
     },
     {
@@ -158,7 +158,7 @@ destinations = [
         "activities": ["Hiking", "Museums", "Shopping", "Dining"],
         "safety_rating": 5,
         "user_rating": 4.4,
-        "image": "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80",
+        "image": "/destinations/islamabad.png",
         "description": "Pakistan's beautiful capital city. Visit Faisal Mosque, Margalla Hills trails, Lok Virsa Museum, and the serene Rawal Lake."
     }
 ]

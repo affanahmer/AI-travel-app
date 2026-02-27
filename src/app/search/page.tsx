@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, DollarSign, CloudSun, Star, Search as SearchIcon, ChevronRight } from "lucide-react";
+import { MapPin, CloudSun, Star, Search as SearchIcon, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import React from 'react';
 
@@ -190,7 +190,7 @@ export default async function SearchPage({
                                 <Card key={dest._id || dest.name} className="overflow-hidden flex flex-col group hover:shadow-lg transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
                                     {/* Image Header */}
                                     <div className="h-48 bg-zinc-200 dark:bg-zinc-800 relative w-full overflow-hidden">
-                                        {dest.image && dest.image.startsWith('http') ? (
+                                        {dest.image && (dest.image.startsWith('http') || dest.image.startsWith('/')) ? (
                                             <img
                                                 src={dest.image}
                                                 alt={dest.name}
@@ -220,7 +220,7 @@ export default async function SearchPage({
                                         <div className="grid grid-cols-3 gap-4 mb-6">
                                             <div className="flex flex-col">
                                                 <span className="text-xs text-muted-foreground mb-1">Cost / Trip</span>
-                                                <span className="font-semibold text-sm flex items-center"><DollarSign className="h-3.5 w-3.5 mr-0.5" />{dest.cost.toLocaleString()}</span>
+                                                <span className="font-semibold text-sm flex items-center">PKR {dest.cost.toLocaleString()}</span>
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-xs text-muted-foreground mb-1">Weather</span>

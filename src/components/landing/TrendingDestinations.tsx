@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, CloudSun, DollarSign, Star, Loader2 } from "lucide-react";
+import { MapPin, CloudSun, Star, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { usePerformance } from "@/hooks/use-performance";
 
@@ -100,7 +100,7 @@ export function TrendingDestinations() {
                                             <MapPin className="h-3.5 w-3.5" /> {dest.region}
                                         </span>
                                         <span className="flex items-center gap-1">
-                                            <DollarSign className="h-3.5 w-3.5" /> {dest.cost.toLocaleString()} PKR
+                                            PKR {dest.cost.toLocaleString()}
                                         </span>
                                         <span className="flex items-center gap-1">
                                             <CloudSun className="h-3.5 w-3.5" /> {dest.weather}
