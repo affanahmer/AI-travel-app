@@ -1,0 +1,82 @@
+[
+    {
+        "name": "Hunza Valley",
+        "type": "Adventure",
+        "region": "Gilgit Baltistan",
+        "cost": 25000,
+        "weather": "Cool",
+        "best_season": "Summer",
+        "activities": [
+            "Hiking",
+            "Sightseeing",
+            "Photography"
+        ],
+        "safety_rating": 5,
+        "user_rating": 4.8,
+        "image": "/images/hunza.jpg"
+    },
+    {
+        "name": "Gwadar Beach",
+        "type": "Relaxation",
+        "region": "Balochistan",
+        "cost": 18000,
+        "weather": "Warm",
+        "best_season": "Winter",
+        "activities": [
+            "Swimming",
+            "Sunbathing",
+            "Boat Ride"
+        ],
+        "safety_rating": 4,
+        "user_rating": 4.5,
+        "image": "/images/gwadar.jpg"
+    },
+    {
+        "name": "Murree",
+        "type": "Family",
+        "region": "Punjab",
+        "cost": 15000,
+        "weather": "Cold",
+        "best_season": "All Year",
+        "activities": [
+            "Shopping",
+            "Cable Car",
+            "Hiking"
+        ],
+        "safety_rating": 4,
+        "user_rating": 4.3,
+        "image": "/images/murree.jpg"
+    },
+    {
+        "name": "Skardu",
+        "type": "Adventure",
+        "region": "Gilgit Baltistan",
+        "cost": 30000,
+        "weather": "Cold",
+        "best_season": "Summer",
+        "activities": [
+            "Trekking",
+            "Camping",
+            "Boating"
+        ],
+        "safety_rating": 4,
+        "user_rating": 4.7,
+        "image": "/images/skardu.jpg"
+    },
+    {
+        "name": "Lahore Fort",
+        "type": "Historical",
+        "region": "Punjab",
+        "cost": 10000,
+        "weather": "Warm",
+        "best_season": "Winter",
+        "activities": [
+            "Sightseeing",
+            "Photography",
+            "Food Tours"
+        ],
+        "safety_rating": 4,
+        "user_rating": 4.6,
+        "image": "/images/lahore-fort.jpg"
+    }
+]
