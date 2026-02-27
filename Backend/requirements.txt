@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+motor
+pydantic[email]
+python-dotenv
+python-jose[cryptography]
+passlib[bcrypt]
+spacy; python_version < "3.14"
+scikit-learn
+pandas
+httpx
+svix
+python-multipart
+pydantic-settings
