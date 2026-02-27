@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 
 interface ColorRGB {
   r: number;
@@ -52,9 +52,11 @@ function pointerPrototype(): Pointer {
   };
 }
 
+const DEFAULT_BACK_COLOR: ColorRGB = { r: 0.5, g: 0, b: 0 };
+
 export default function SplashCursor({
   SIM_RESOLUTION = 128,
-  DYE_RESOLUTION = 1440,
+  DYE_RESOLUTION = 512,
   CAPTURE_RESOLUTION = 512,
   DENSITY_DISSIPATION = 3.5,
   VELOCITY_DISSIPATION = 2,
@@ -65,10 +67,12 @@ export default function SplashCursor({
   SPLAT_FORCE = 6000,
   SHADING = true,
   COLOR_UPDATE_SPEED = 10,
-  BACK_COLOR = { r: 0.5, g: 0, b: 0 },
+  BACK_COLOR = DEFAULT_BACK_COLOR,
   TRANSPARENT = true
 }: SplashCursorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Stabilize BACK_COLOR reference
+  const stableBackColor = useMemo(() => BACK_COLOR, [BACK_COLOR.r, BACK_COLOR.g, BACK_COLOR.b]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -90,7 +94,7 @@ export default function SplashCursor({
       SHADING,
       COLOR_UPDATE_SPEED: COLOR_UPDATE_SPEED!,
       PAUSED: false,
-      BACK_COLOR,
+      BACK_COLOR: stableBackColor,
       TRANSPARENT
     };
 
@@ -1192,13 +1196,14 @@ export default function SplashCursor({
       return ((value - min) % range) + min;
     }
 
-    window.addEventListener('mousedown', e => {
+    // Named handlers so we can clean them up
+    const handleMouseDown = (e: MouseEvent) => {
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
       updatePointerDownData(pointer, -1, posX, posY);
       clickSplat(pointer);
-    });
+    };
 
     function handleFirstMouseMove(e: MouseEvent) {
       const pointer = pointers[0];
@@ -1209,15 +1214,14 @@ export default function SplashCursor({
       updatePointerMoveData(pointer, posX, posY, color);
       document.body.removeEventListener('mousemove', handleFirstMouseMove);
     }
-    document.body.addEventListener('mousemove', handleFirstMouseMove);
 
-    window.addEventListener('mousemove', e => {
+    const handleMouseMove = (e: MouseEvent) => {
       const pointer = pointers[0];
       const posX = scaleByPixelRatio(e.clientX);
       const posY = scaleByPixelRatio(e.clientY);
       const color = pointer.color;
       updatePointerMoveData(pointer, posX, posY, color);
-    });
+    };
 
     function handleFirstTouchStart(e: TouchEvent) {
       const touches = e.targetTouches;
@@ -1230,59 +1234,57 @@ export default function SplashCursor({
       }
       document.body.removeEventListener('touchstart', handleFirstTouchStart);
     }
-    document.body.addEventListener('touchstart', handleFirstTouchStart);
 
-    window.addEventListener(
-      'touchstart',
-      e => {
-        const touches = e.targetTouches;
-        const pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          const posX = scaleByPixelRatio(touches[i].clientX);
-          const posY = scaleByPixelRatio(touches[i].clientY);
-          updatePointerDownData(pointer, touches[i].identifier, posX, posY);
-        }
-      },
-      false
-    );
+    const handleTouchStart = (e: TouchEvent) => {
+      const touches = e.targetTouches;
+      const pointer = pointers[0];
+      for (let i = 0; i < touches.length; i++) {
+        const posX = scaleByPixelRatio(touches[i].clientX);
+        const posY = scaleByPixelRatio(touches[i].clientY);
+        updatePointerDownData(pointer, touches[i].identifier, posX, posY);
+      }
+    };
 
-    window.addEventListener(
-      'touchmove',
-      e => {
-        const touches = e.targetTouches;
-        const pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          const posX = scaleByPixelRatio(touches[i].clientX);
-          const posY = scaleByPixelRatio(touches[i].clientY);
-          updatePointerMoveData(pointer, posX, posY, pointer.color);
-        }
-      },
-      false
-    );
+    const handleTouchMove = (e: TouchEvent) => {
+      const touches = e.targetTouches;
+      const pointer = pointers[0];
+      for (let i = 0; i < touches.length; i++) {
+        const posX = scaleByPixelRatio(touches[i].clientX);
+        const posY = scaleByPixelRatio(touches[i].clientY);
+        updatePointerMoveData(pointer, posX, posY, pointer.color);
+      }
+    };
 
-    window.addEventListener('touchend', e => {
+    const handleTouchEnd = (e: TouchEvent) => {
       const touches = e.changedTouches;
       const pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
         updatePointerUpData(pointer);
       }
-    });
-  }, [
-    SIM_RESOLUTION,
-    DYE_RESOLUTION,
-    CAPTURE_RESOLUTION,
-    DENSITY_DISSIPATION,
-    VELOCITY_DISSIPATION,
-    PRESSURE,
-    PRESSURE_ITERATIONS,
-    CURL,
-    SPLAT_RADIUS,
-    SPLAT_FORCE,
-    SHADING,
-    COLOR_UPDATE_SPEED,
-    BACK_COLOR,
-    TRANSPARENT
-  ]);
+    };
+
+    window.addEventListener('mousedown', handleMouseDown);
+    document.body.addEventListener('mousemove', handleFirstMouseMove);
+    window.addEventListener('mousemove', handleMouseMove);
+    document.body.addEventListener('touchstart', handleFirstTouchStart);
+    window.addEventListener('touchstart', handleTouchStart, false);
+    window.addEventListener('touchmove', handleTouchMove, false);
+    window.addEventListener('touchend', handleTouchEnd);
+
+    // Cleanup: remove ALL listeners and cancel the animation frame
+    return () => {
+      window.removeEventListener('mousedown', handleMouseDown);
+      document.body.removeEventListener('mousemove', handleFirstMouseMove);
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.body.removeEventListener('touchstart', handleFirstTouchStart);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      // Cancel the rAF loop
+      config.PAUSED = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="fixed top-0 left-0 z-50 pointer-events-none w-full h-full">

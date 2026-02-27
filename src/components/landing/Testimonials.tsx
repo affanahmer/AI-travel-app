@@ -1,9 +1,17 @@
+'use client';
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import React from 'react';
-import TextPressure from "@/components/reactbits/TextPressure";
+import dynamic from "next/dynamic";
+import { usePerformance } from "@/hooks/use-performance";
+import { cn } from "@/lib/utils";
+
+const TextPressure = dynamic(() => import("@/components/reactbits/TextPressure"), { ssr: false });
 
 export function Testimonials() {
+    const { shouldReduceMotion } = usePerformance();
+
     const reviews = [
         {
             name: "Ali Hassan",
@@ -45,26 +53,44 @@ export function Testimonials() {
             </div>
 
             <div className="relative flex w-full h-[600px] overflow-hidden items-center justify-center">
-                {/* Background TextPressure */}
-                <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center opacity-[0.03] dark:opacity-[0.05]">
-                    <TextPressure
-                        text="TRAVELERS"
-                        flex={true}
-                        alpha={false}
-                        stroke={false}
-                        width={true}
-                        weight={true}
-                        italic={true}
-                        textColor="#000000"
-                        minFontSize={120}
-                    />
-                </div>
+                {/* Background TextPressure - Completely disabled on low power */}
+                {!shouldReduceMotion && (
+                    <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center opacity-[0.03] dark:opacity-[0.05]">
+                        <TextPressure
+                            text="TRAVELERS"
+                            flex={true}
+                            alpha={false}
+                            stroke={false}
+                            width={true}
+                            weight={true}
+                            italic={true}
+                            textColor="#000000"
+                            minFontSize={120}
+                        />
+                    </div>
+                )}
+
+                {/* Simple text fallback for low power */}
+                {shouldReduceMotion && (
+                    <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center opacity-[0.05] select-none">
+                        <span className="text-[120px] font-black italic uppercase tracking-tighter">TRAVELERS</span>
+                    </div>
+                )}
 
                 {/* Magic UI style Marquee implementation */}
                 <div className="group/marquee relative w-full flex overflow-hidden z-10">
-                    <div className="animate-marquee flex gap-6 px-4 whitespace-nowrap py-12 items-center group-hover/marquee:[animation-play-state:paused]">
-                        {[...reviews, ...reviews, ...reviews].map((review, i) => (
-                            <Card key={i} className="relative z-20 min-w-[350px] max-w-[400px] shrink-0 border border-zinc-200 dark:border-zinc-800 shadow-xl bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-md cursor-pointer transition-all duration-300 group-hover/marquee:opacity-40 hover:!opacity-100 hover:scale-105">
+                    <div className={cn(
+                        "flex gap-6 px-4 whitespace-nowrap py-12 items-center group-hover/marquee:[animation-play-state:paused]",
+                        !shouldReduceMotion ? "animate-marquee" : "animate-none flex-wrap justify-center overflow-auto"
+                    )}>
+                        {(shouldReduceMotion ? reviews : [...reviews, ...reviews, ...reviews]).map((review, i) => (
+                            <Card
+                                key={i}
+                                className={cn(
+                                    "relative z-20 min-w-[350px] max-w-[400px] shrink-0 border border-zinc-200 dark:border-zinc-800 shadow-xl bg-zinc-50/90 dark:bg-zinc-900/90 cursor-pointer transition-all duration-300",
+                                    !shouldReduceMotion && "backdrop-blur-md group-hover/marquee:opacity-40 hover:!opacity-100 hover:scale-105"
+                                )}
+                            >
                                 <CardContent className="p-6">
                                     <div className="flex gap-1 mb-4">
                                         {Array.from({ length: review.rating }).map((_, i) => (
@@ -87,8 +113,12 @@ export function Testimonials() {
 
                 </div>
                 {/* Gradient Fades */}
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent z-20"></div>
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent z-20"></div>
+                {!shouldReduceMotion && (
+                    <>
+                        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent z-20"></div>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent z-20"></div>
+                    </>
+                )}
             </div>
         </section>
     );

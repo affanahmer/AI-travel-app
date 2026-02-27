@@ -70,7 +70,7 @@ const TextPressure: React.FC<TextPressureProps> = ({
   const [scaleY, setScaleY] = useState(1);
   const [lineHeight, setLineHeight] = useState(1);
 
-  const chars = text.split('');
+  const chars = useMemo(() => text.split(''), [text]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -133,7 +133,16 @@ const TextPressure: React.FC<TextPressureProps> = ({
 
   useEffect(() => {
     let rafId: number;
+    let frameCount = 0;
+
     const animate = () => {
+      frameCount++;
+      // Throttle: only update every 3rd frame (~20fps instead of 60fps)
+      if (frameCount % 3 !== 0) {
+        rafId = requestAnimationFrame(animate);
+        return;
+      }
+
       mouseRef.current.x += (cursorRef.current.x - mouseRef.current.x) / 15;
       mouseRef.current.y += (cursorRef.current.y - mouseRef.current.y) / 15;
 
@@ -206,9 +215,8 @@ const TextPressure: React.FC<TextPressureProps> = ({
       {styleElement}
       <h1
         ref={titleRef}
-        className={`text-pressure-title ${className} ${
-          flex ? 'flex justify-between' : ''
-        } ${stroke ? 'stroke' : ''} uppercase text-center`}
+        className={`text-pressure-title ${className} ${flex ? 'flex justify-between' : ''
+          } ${stroke ? 'stroke' : ''} uppercase text-center`}
         style={{
           fontFamily,
           fontSize: fontSize,
@@ -238,4 +246,3 @@ const TextPressure: React.FC<TextPressureProps> = ({
 };
 
 export default TextPressure;
-

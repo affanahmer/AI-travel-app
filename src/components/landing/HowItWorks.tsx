@@ -1,8 +1,15 @@
+'use client';
+
 import { MessageSquareText, Sparkles, Map } from "lucide-react";
-import FadeContent from "@/components/reactbits/FadeContent";
-import SpotlightCard from "@/components/reactbits/SpotlightCard";
+import dynamic from "next/dynamic";
+import { usePerformance } from "@/hooks/use-performance";
+
+const FadeContent = dynamic(() => import("@/components/reactbits/FadeContent"), { ssr: false });
+const SpotlightCard = dynamic(() => import("@/components/reactbits/SpotlightCard"), { ssr: false });
 
 export function HowItWorks() {
+    const { shouldReduceMotion } = usePerformance();
+
     const steps = [
         {
             title: "Tell us your preferences",
@@ -21,6 +28,33 @@ export function HowItWorks() {
         },
     ];
 
+    const content = (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {/* Connector Line for Desktop */}
+            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-zinc-200 dark:bg-zinc-800 z-0"></div>
+
+            {steps.map((step, index) => (
+                <div key={index} className="relative z-10 flex flex-col items-center text-center space-y-4">
+                    {!shouldReduceMotion ? (
+                        <SpotlightCard className="!rounded-full !bg-background !p-0 !border-2 border-zinc-200 dark:border-zinc-800 shadow-sm h-24 w-24 flex items-center justify-center" spotlightColor="rgba(58, 41, 255, 0.2)">
+                            <div className="h-16 w-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center pointer-events-none">
+                                {step.icon}
+                            </div>
+                        </SpotlightCard>
+                    ) : (
+                        <div className="rounded-full bg-background border-2 border-zinc-200 dark:border-zinc-800 shadow-sm h-24 w-24 flex items-center justify-center">
+                            <div className="h-16 w-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
+                                {step.icon}
+                            </div>
+                        </div>
+                    )}
+                    <h3 className="text-xl font-semibold">{step.title}</h3>
+                    <p className="text-muted-foreground px-4">{step.description}</p>
+                </div>
+            ))}
+        </div>
+    );
+
     return (
         <section className="py-24 bg-background">
             <div className="container mx-auto px-4 md:px-6">
@@ -31,24 +65,13 @@ export function HowItWorks() {
                     </p>
                 </div>
 
-                <FadeContent blur duration={1000} ease="easeOutCubic" initialOpacity={0}>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-                        {/* Connector Line for Desktop */}
-                        <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-0.5 bg-zinc-200 dark:bg-zinc-800 z-0"></div>
-
-                        {steps.map((step, index) => (
-                            <div key={index} className="relative z-10 flex flex-col items-center text-center space-y-4">
-                                <SpotlightCard className="!rounded-full !bg-background !p-0 !border-2 border-zinc-200 dark:border-zinc-800 shadow-sm h-24 w-24 flex items-center justify-center" spotlightColor="rgba(58, 41, 255, 0.2)">
-                                    <div className="h-16 w-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center pointer-events-none">
-                                        {step.icon}
-                                    </div>
-                                </SpotlightCard>
-                                <h3 className="text-xl font-semibold">{step.title}</h3>
-                                <p className="text-muted-foreground px-4">{step.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </FadeContent>
+                {!shouldReduceMotion ? (
+                    <FadeContent blur duration={1000} ease="easeOutCubic" initialOpacity={0}>
+                        {content}
+                    </FadeContent>
+                ) : (
+                    content
+                )}
             </div>
         </section>
     );

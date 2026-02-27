@@ -1,5 +1,6 @@
 'use client';
 import React, { useRef, useState } from 'react';
+import { usePerformance } from '@/hooks/use-performance';
 
 interface Position {
   x: number;
@@ -16,19 +17,21 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   className = '',
   spotlightColor = 'rgba(255, 255, 255, 0.25)'
 }) => {
+  const { shouldReduceMotion } = usePerformance();
   const divRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [opacity, setOpacity] = useState<number>(0);
 
   const handleMouseMove: React.MouseEventHandler<HTMLDivElement> = e => {
-    if (!divRef.current || isFocused) return;
+    if (shouldReduceMotion || !divRef.current || isFocused) return;
 
     const rect = divRef.current.getBoundingClientRect();
     setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
   const handleFocus = () => {
+    if (shouldReduceMotion) return;
     setIsFocused(true);
     setOpacity(0.6);
   };
@@ -39,6 +42,7 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   };
 
   const handleMouseEnter = () => {
+    if (shouldReduceMotion) return;
     setOpacity(0.6);
   };
 
@@ -49,24 +53,25 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({
   return (
     <div
       ref={divRef}
-      onMouseMove={handleMouseMove}
-      onFocus={handleFocus}
+      onMouseMove={shouldReduceMotion ? undefined : handleMouseMove}
+      onFocus={shouldReduceMotion ? undefined : handleFocus}
       onBlur={handleBlur}
-      onMouseEnter={handleMouseEnter}
+      onMouseEnter={shouldReduceMotion ? undefined : handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={`relative rounded-3xl border border-neutral-800 bg-neutral-900 overflow-hidden p-8 ${className}`}
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-in-out"
-        style={{
-          opacity,
-          background: `radial-gradient(circle at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`
-        }}
-      />
+      {!shouldReduceMotion && (
+        <div
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 ease-in-out"
+          style={{
+            opacity,
+            background: `radial-gradient(circle at ${position.x}px ${position.y}px, ${spotlightColor}, transparent 80%)`
+          }}
+        />
+      )}
       {children}
     </div>
   );
 };
 
 export default SpotlightCard;
-

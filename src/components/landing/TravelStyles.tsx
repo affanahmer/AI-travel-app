@@ -1,8 +1,15 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Tent, Waves, Users, Landmark, Camera } from "lucide-react";
-import Magnet from "@/components/reactbits/Magnet";
+import dynamic from "next/dynamic";
+import { usePerformance } from "@/hooks/use-performance";
+
+const Magnet = dynamic(() => import("@/components/reactbits/Magnet"), { ssr: false });
 
 export function TravelStyles() {
+    const { shouldReduceMotion } = usePerformance();
+
     const styles = [
         { name: "Adventure", icon: <Tent className="h-5 w-5" />, color: "text-orange-500", bg: "bg-orange-500/10" },
         { name: "Relaxation", icon: <Waves className="h-5 w-5" />, color: "text-blue-500", bg: "bg-blue-500/10" },
@@ -10,6 +17,19 @@ export function TravelStyles() {
         { name: "Historical", icon: <Landmark className="h-5 w-5" />, color: "text-emerald-500", bg: "bg-emerald-500/10" },
         { name: "Cultural", icon: <Camera className="h-5 w-5" />, color: "text-pink-500", bg: "bg-pink-500/10" },
     ];
+
+    const StyleButton = ({ style }: { style: typeof styles[0] }) => (
+        <Button
+            variant="outline"
+            size="lg"
+            className="h-16 px-8 rounded-full border-2 border-zinc-200 dark:border-zinc-800 bg-background text-foreground hover:bg-zinc-900 hover:text-zinc-50 dark:hover:bg-zinc-50 dark:hover:text-zinc-900 transition-colors duration-150 ease-out"
+        >
+            <div className={`mr-3 p-2 rounded-full ${style.bg} ${style.color} transition-colors group-hover:bg-transparent`}>
+                {style.icon}
+            </div>
+            <span className="text-base font-semibold">{style.name}</span>
+        </Button>
+    );
 
     return (
         <section className="py-24 bg-zinc-50 dark:bg-zinc-900/20">
@@ -23,18 +43,13 @@ export function TravelStyles() {
 
                 <div className="flex flex-wrap justify-center gap-6">
                     {styles.map((style) => (
-                        <Magnet key={style.name} padding={50} disabled={false} magnetStrength={2}>
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                className="h-16 px-8 rounded-full border-2 border-zinc-200 dark:border-zinc-800 bg-background text-foreground hover:bg-zinc-900 hover:text-zinc-50 dark:hover:bg-zinc-50 dark:hover:text-zinc-900 transition-colors duration-150 ease-out"
-                            >
-                                <div className={`mr-3 p-2 rounded-full ${style.bg} ${style.color} transition-colors group-hover:bg-transparent`}>
-                                    {style.icon}
-                                </div>
-                                <span className="text-base font-semibold">{style.name}</span>
-                            </Button>
-                        </Magnet>
+                        shouldReduceMotion ? (
+                            <StyleButton key={style.name} style={style} />
+                        ) : (
+                            <Magnet key={style.name} padding={50} disabled={false} magnetStrength={2}>
+                                <StyleButton style={style} />
+                            </Magnet>
+                        )
                     ))}
                 </div>
             </div>

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { usePerformance } from '@/hooks/use-performance';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,11 +40,17 @@ const FadeContent: React.FC<FadeContentProps> = ({
   className = '',
   ...props
 }) => {
+  const { shouldReduceMotion } = usePerformance();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (shouldReduceMotion) {
+      gsap.set(el, { autoAlpha: 1, filter: 'blur(0px)' });
+      return;
+    }
 
     let scrollerTarget: Element | string | null = container || document.getElementById('snap-main-container') || null;
 
@@ -99,7 +106,7 @@ const FadeContent: React.FC<FadeContentProps> = ({
       gsap.killTweensOf(el);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [shouldReduceMotion]);
 
   return (
     <div ref={ref} className={className} {...props}>
@@ -109,4 +116,3 @@ const FadeContent: React.FC<FadeContentProps> = ({
 };
 
 export default FadeContent;
-

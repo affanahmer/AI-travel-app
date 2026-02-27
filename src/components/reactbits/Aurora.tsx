@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
 
 const VERT = `#version 300 es
@@ -116,9 +116,19 @@ interface AuroraProps {
   speed?: number;
 }
 
+const DEFAULT_COLOR_STOPS = ['#5227FF', '#7cff67', '#5227FF'];
+
 export default function Aurora(props: AuroraProps) {
-  const { colorStops = ['#5227FF', '#7cff67', '#5227FF'], amplitude = 1.0, blend = 0.5 } = props;
-  const propsRef = useRef<AuroraProps>(props);
+  const { amplitude = 1.0, blend = 0.5 } = props;
+
+  // Stabilize the colorStops reference — join into string for comparison
+  const colorStops = props.colorStops ?? DEFAULT_COLOR_STOPS;
+  const colorStopsKey = colorStops.join(',');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const stableColorStops = useMemo(() => colorStops, [colorStopsKey]);
+
+  // Use refs for values that change but shouldn't re-run the effect
+  const propsRef = useRef(props);
   propsRef.current = props;
 
   const ctnDom = useRef<HTMLDivElement>(null);
@@ -130,7 +140,7 @@ export default function Aurora(props: AuroraProps) {
     const renderer = new Renderer({
       alpha: true,
       premultipliedAlpha: true,
-      antialias: true
+      antialias: false, // Disable antialiasing for much less GPU work
     });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
@@ -138,7 +148,6 @@ export default function Aurora(props: AuroraProps) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = 'transparent';
 
-    // eslint-disable-next-line prefer-const
     let program: Program | undefined;
 
     function resize() {
@@ -157,7 +166,7 @@ export default function Aurora(props: AuroraProps) {
       delete geometry.attributes.uv;
     }
 
-    const colorStopsArray = colorStops.map(hex => {
+    const colorStopsArray = stableColorStops.map(hex => {
       const c = new Color(hex);
       return [c.r, c.g, c.b];
     });
@@ -185,7 +194,8 @@ export default function Aurora(props: AuroraProps) {
         program.uniforms.uTime.value = time * speed * 0.1;
         program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
         program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
-        const stops = propsRef.current.colorStops ?? colorStops;
+        // Read color stops from ref (no re-render needed for color updates)
+        const stops = propsRef.current.colorStops ?? stableColorStops;
         program.uniforms.uColorStops.value = stops.map((hex: string) => {
           const c = new Color(hex);
           return [c.r, c.g, c.b];
@@ -205,8 +215,9 @@ export default function Aurora(props: AuroraProps) {
       }
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
-  }, [amplitude, blend, colorStops]);
+    // Run only once — props are read from refs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return <div ref={ctnDom} className="w-full h-full" />;
 }
-

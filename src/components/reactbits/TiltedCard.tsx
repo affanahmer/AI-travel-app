@@ -2,6 +2,7 @@
 import type { SpringOptions } from 'motion/react';
 import { useRef, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'motion/react';
+import { usePerformance } from '@/hooks/use-performance';
 
 interface TiltedCardProps {
   imageSrc: React.ComponentProps<'img'>['src'];
@@ -40,6 +41,7 @@ export default function TiltedCard({
   overlayContent = null,
   displayOverlayContent = false
 }: TiltedCardProps) {
+  const { shouldReduceMotion } = usePerformance();
   const ref = useRef<HTMLElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -56,7 +58,7 @@ export default function TiltedCard({
   const [lastY, setLastY] = useState(0);
 
   function handleMouse(e: React.MouseEvent<HTMLElement>) {
-    if (!ref.current) return;
+    if (shouldReduceMotion || !ref.current) return;
 
     const rect = ref.current.getBoundingClientRect();
     const offsetX = e.clientX - rect.left - rect.width / 2;
@@ -77,6 +79,7 @@ export default function TiltedCard({
   }
 
   function handleMouseEnter() {
+    if (shouldReduceMotion) return;
     scale.set(scaleOnHover);
     opacity.set(1);
   }
@@ -97,11 +100,11 @@ export default function TiltedCard({
         height: containerHeight,
         width: containerWidth
       }}
-      onMouseMove={handleMouse}
-      onMouseEnter={handleMouseEnter}
+      onMouseMove={shouldReduceMotion ? undefined : handleMouse}
+      onMouseEnter={shouldReduceMotion ? undefined : handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {showMobileWarning && (
+      {showMobileWarning && !shouldReduceMotion && (
         <div className="absolute top-4 text-center text-sm block sm:hidden">
           This effect is not optimized for mobile. Check on desktop.
         </div>
@@ -112,9 +115,9 @@ export default function TiltedCard({
         style={{
           width: imageWidth,
           height: imageHeight,
-          rotateX,
-          rotateY,
-          scale
+          rotateX: shouldReduceMotion ? 0 : rotateX,
+          rotateY: shouldReduceMotion ? 0 : rotateY,
+          scale: shouldReduceMotion ? 1 : scale
         }}
       >
         <motion.img
@@ -128,13 +131,13 @@ export default function TiltedCard({
         />
 
         {displayOverlayContent && overlayContent && (
-          <motion.div className="absolute inset-0 z-[2] will-change-transform [transform:translateZ(30px)]">
+          <motion.div className={`absolute inset-0 z-[2] will-change-transform ${!shouldReduceMotion ? '[transform:translateZ(30px)]' : ''}`}>
             {overlayContent}
           </motion.div>
         )}
       </motion.div>
 
-      {showTooltip && (
+      {showTooltip && !shouldReduceMotion && (
         <motion.figcaption
           className="pointer-events-none absolute left-0 top-0 rounded-[4px] bg-white px-[10px] py-[4px] text-[10px] text-[#2d2d2d] opacity-0 z-[3] hidden sm:block"
           style={{
@@ -150,4 +153,3 @@ export default function TiltedCard({
     </figure>
   );
 }
-
