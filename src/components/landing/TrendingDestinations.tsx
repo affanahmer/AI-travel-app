@@ -1,24 +1,67 @@
 'use client';
 
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, CloudSun, DollarSign, Star } from "lucide-react";
-import data from "@/../data/destinations.json";
+import { MapPin, CloudSun, DollarSign, Star, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { usePerformance } from "@/hooks/use-performance";
 
 const TiltedCard = dynamic(() => import("@/components/reactbits/TiltedCard"), { ssr: false });
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
+interface Destination {
+    _id: string;
+    name: string;
+    type: string;
+    region: string;
+    cost: number;
+    weather: string;
+    best_season: string;
+    activities: string[];
+    safety_rating: number;
+    user_rating: number;
+    image: string;
+}
+
+const fallbackImage = "https://images.unsplash.com/photo-1542401886-65d6c6127d47?w=800";
+
 export function TrendingDestinations() {
     const { shouldReduceMotion } = usePerformance();
-    // Taking the first 4 for the bento grid
-    const destinations = data.slice(0, 4);
+    const [destinations, setDestinations] = useState<Destination[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const destinationImages = [
-        "https://images.unsplash.com/photo-1542401886-65d6c6127d47?w=800",
-        "https://images.unsplash.com/photo-1506452899064-50012210b3ee?w=800",
-        "https://images.unsplash.com/photo-1589808386348-18eaf396f437?w=800",
-        "https://images.unsplash.com/photo-1596706069929-deac2c486414?w=800"
-    ];
+    useEffect(() => {
+        async function fetchDestinations() {
+            try {
+                const res = await fetch(`${API_URL}/destinations/`);
+                if (res.ok) {
+                    const data = await res.json();
+                    // Sort by user_rating descending, take top 4
+                    const sorted = data.sort((a: Destination, b: Destination) => b.user_rating - a.user_rating);
+                    setDestinations(sorted.slice(0, 4));
+                }
+            } catch (err) {
+                // Fallback to empty — component will show gracefully
+                console.error("Failed to fetch destinations:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchDestinations();
+    }, []);
+
+    if (loading) {
+        return (
+            <section className="py-24 bg-background">
+                <div className="container mx-auto px-4 md:px-6 flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+            </section>
+        );
+    }
+
+    if (destinations.length === 0) return null;
 
     return (
         <section className="py-24 bg-background">
@@ -68,10 +111,10 @@ export function TrendingDestinations() {
                         );
 
                         return (
-                            <div key={dest.name} className={`group block relative w-full h-full cursor-pointer overflow-hidden rounded-[15px] ${i === 0 ? "md:col-span-2 md:row-span-2" : i === 1 ? "md:col-span-2 md:row-span-1" : "md:col-span-1 md:row-span-1"}`}>
+                            <div key={dest._id || dest.name} className={`group block relative w-full h-full cursor-pointer overflow-hidden rounded-[15px] ${i === 0 ? "md:col-span-2 md:row-span-2" : i === 1 ? "md:col-span-2 md:row-span-1" : "md:col-span-1 md:row-span-1"}`}>
                                 {!shouldReduceMotion ? (
                                     <TiltedCard
-                                        imageSrc={destinationImages[i] || destinationImages[0]}
+                                        imageSrc={dest.image || fallbackImage}
                                         altText={dest.name}
                                         containerHeight="100%"
                                         containerWidth="100%"
@@ -87,7 +130,7 @@ export function TrendingDestinations() {
                                 ) : (
                                     <div className="relative w-full h-full">
                                         <img
-                                            src={destinationImages[i] || destinationImages[0]}
+                                            src={dest.image || fallbackImage}
                                             alt={dest.name}
                                             className="w-full h-full object-cover rounded-[15px]"
                                             loading="lazy"

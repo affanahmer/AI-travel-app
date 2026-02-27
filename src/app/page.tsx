@@ -1,9 +1,11 @@
 'use client';
 
 import dynamic from "next/dynamic";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Calendar, CircleDollarSign } from "lucide-react";
+import { Search, MapPin, Calendar, CircleDollarSign, Loader2 } from "lucide-react";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { TravelSuggestions } from "@/components/landing/TravelSuggestions";
 import { TrendingDestinations } from "@/components/landing/TrendingDestinations";
@@ -21,6 +23,16 @@ const Magnet = dynamic(() => import("@/components/reactbits/Magnet"), { ssr: fal
 
 export default function Home() {
   const { shouldReduceMotion } = usePerformance();
+  const [query, setQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    setIsSearching(true);
+    router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -52,26 +64,28 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="w-full max-w-2xl bg-zinc-900/50 backdrop-blur-md p-2 rounded-2xl border border-zinc-800 shadow-2xl flex flex-col md:flex-row gap-2 transition-all hover:border-zinc-700">
+          <form onSubmit={handleSearch} className="w-full max-w-2xl bg-zinc-900/50 backdrop-blur-md p-2 rounded-2xl border border-zinc-800 shadow-2xl flex flex-col md:flex-row gap-2 transition-all hover:border-zinc-700">
             <div className="relative flex-1 flex items-center">
               <Search className="absolute left-3 h-5 w-5 text-zinc-500" />
               <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder="Plan a 3-day trip to northern Pakistan under 25,000 PKR"
                 className="w-full pl-10 h-14 bg-transparent border-none text-white placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:ring-offset-0 text-base flex-1"
               />
             </div>
             {!shouldReduceMotion ? (
               <Magnet padding={50} disabled={false} magnetStrength={3}>
-                <Button size="lg" className="h-14 px-8 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 font-semibold w-full md:w-auto">
-                  Generate Trip
+                <Button type="submit" size="lg" disabled={isSearching} className="h-14 px-8 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 font-semibold w-full md:w-auto">
+                  {isSearching ? <Loader2 className="h-5 w-5 animate-spin" /> : "Generate Trip"}
                 </Button>
               </Magnet>
             ) : (
-              <Button size="lg" className="h-14 px-8 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 font-semibold w-full md:w-auto">
-                Generate Trip
+              <Button type="submit" size="lg" disabled={isSearching} className="h-14 px-8 rounded-xl bg-white text-zinc-950 hover:bg-zinc-200 font-semibold w-full md:w-auto">
+                {isSearching ? <Loader2 className="h-5 w-5 animate-spin" /> : "Generate Trip"}
               </Button>
             )}
-          </div>
+          </form>
 
           <div className="flex flex-wrap justify-center gap-4 text-sm text-zinc-500 mt-4">
             <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> Any Destination</span>

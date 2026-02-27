@@ -71,8 +71,9 @@ async def recommendations(
         )
         logger.info("Guest recommendations (cold-start)")
     
-    # Get ML recommendations
-    recommended = get_recommendations(user_prefs, destinations)
+    # Get ML recommendations — pass extracted destination for direct matching
+    query_destination = parsed_params.get("destination", "")
+    recommended = get_recommendations(user_prefs, destinations, query_destination=query_destination)
     
     return {
         "params": parsed_params,

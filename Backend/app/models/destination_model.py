@@ -12,6 +12,7 @@ class DestinationBase(BaseModel):
     safety_rating: int = Field(ge=1, le=5)
     user_rating: float = Field(ge=1.0, le=5.0)
     image: str
+    description: Optional[str] = ""
 
 class DestinationCreate(DestinationBase):
     pass

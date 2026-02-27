@@ -1,24 +1,63 @@
 'use client';
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Slider } from "@/components/ui/slider";
 import { MapPin, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import data from "@/../data/destinations.json";
 import SpotlightCard from "@/components/reactbits/SpotlightCard";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+
+interface Destination {
+    _id: string;
+    name: string;
+    type: string;
+    region: string;
+    cost: number;
+    weather: string;
+    best_season: string;
+    activities: string[];
+    safety_rating: number;
+    user_rating: number;
+    image: string;
+}
 
 export function BudgetEstimator() {
     const [budget, setBudget] = useState([20000]);
+    const [destinations, setDestinations] = useState<Destination[]>([]);
+    const [topMatch, setTopMatch] = useState<Destination | null>(null);
+
+    // Fetch all destinations once
+    useEffect(() => {
+        async function fetchDestinations() {
+            try {
+                const res = await fetch(`${API_URL}/destinations/`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setDestinations(data);
+                }
+            } catch (err) {
+                console.error("Failed to fetch destinations:", err);
+            }
+        }
+        fetchDestinations();
+    }, []);
+
+    // Update top match when budget or destinations change
+    useEffect(() => {
+        if (destinations.length === 0) return;
+
+        // Filter by max cost with a small buffer, sort by rating
+        const filtered = destinations
+            .filter((d: Destination) => d.cost <= budget[0] + 5000)
+            .sort((a: Destination, b: Destination) => b.user_rating - a.user_rating);
+
+        setTopMatch(filtered.length > 0 ? filtered[0] : destinations[0]);
+    }, [budget, destinations]);
 
     const handleBudgetChange = useCallback((value: number[]) => {
         setBudget(value);
     }, []);
-
-    // Memoize the expensive filter
-    const topMatch = useMemo(() => {
-        const matching = data.filter(d => d.cost <= budget[0] + 5000);
-        return matching.length > 0 ? matching[0] : data[0];
-    }, [budget]);
 
     return (
         <section className="py-24 bg-background border-t">
@@ -71,14 +110,14 @@ export function BudgetEstimator() {
                                         Top Match for your budget
                                     </div>
                                     <h3 className="text-2xl font-bold mb-2 flex items-center gap-2 drop-shadow-md">
-                                        <MapPin className="h-5 w-5" /> {topMatch.name}
+                                        <MapPin className="h-5 w-5" /> {topMatch?.name || "Loading..."}
                                     </h3>
                                     <div className="flex items-center justify-between">
                                         <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold">
-                                            {topMatch.type}
+                                            {topMatch?.type || "—"}
                                         </span>
                                         <span className="font-semibold text-lg drop-shadow-md">
-                                            ~{topMatch.cost.toLocaleString()} PKR
+                                            ~{topMatch?.cost.toLocaleString() || "—"} PKR
                                         </span>
                                     </div>
                                 </div>
