@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List
 from app.services.db import get_database
 from app.models.trip_model import TripCreate, TripDB, BudgetBreakdown
-from app.core.clerk_auth import get_current_user
+from app.core.auth import get_current_user
 from bson import ObjectId
 
 router = APIRouter()
@@ -48,13 +48,13 @@ async def calculate_budget(payload: dict):
 @router.post("/save")
 async def save_trip(
     payload: dict,
-    clerk_id: str = Depends(get_current_user)
+    user_id: str = Depends(get_current_user)
 ):
-    """Saves generated trip to user profile — requires Clerk JWT."""
+    """Saves generated trip to user profile."""
     db = get_database()
     
     trip_data = {
-        "clerk_id": clerk_id,
+        "user_id": user_id,
         "destination_id": payload.get("destination_id"),
         "query_parameters": payload.get("query_parameters", {}),
         "budget_breakdown": payload.get("budget_breakdown", {}),
@@ -70,10 +70,10 @@ async def save_trip(
     return saved_trip
 
 @router.get("/my-trips")
-async def get_my_trips(clerk_id: str = Depends(get_current_user)):
-    """Get logged-in user's saved trips — requires Clerk JWT."""
+async def get_my_trips(user_id: str = Depends(get_current_user)):
+    """Get logged-in user's saved trips."""
     db = get_database()
-    cursor = db.saved_trips.find({"clerk_id": clerk_id})
+    cursor = db.saved_trips.find({"user_id": user_id})
     trips = await cursor.to_list(length=100)
     
     for trip in trips:
@@ -84,16 +84,16 @@ async def get_my_trips(clerk_id: str = Depends(get_current_user)):
 @router.delete("/my-trips/{trip_id}")
 async def delete_trip(
     trip_id: str,
-    clerk_id: str = Depends(get_current_user)
+    user_id: str = Depends(get_current_user)
 ):
-    """Delete a saved trip — requires Clerk JWT."""
+    """Delete a saved trip."""
     db = get_database()
     if not ObjectId.is_valid(trip_id):
         raise HTTPException(status_code=400, detail="Invalid trip ID")
     
     result = await db.saved_trips.delete_one({
         "_id": ObjectId(trip_id),
-        "clerk_id": clerk_id  # Ensure users can only delete their own trips
+        "user_id": user_id  # Ensure users can only delete their own trips
     })
     
     if result.deleted_count == 0:

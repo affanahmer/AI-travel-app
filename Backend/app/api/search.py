@@ -4,7 +4,7 @@ from app.ml.nlp_parser import parse_travel_query
 from app.ml.recommender import get_recommendations
 from app.models.user_model import UserPreferences
 from app.services.db import get_database
-from app.core.clerk_auth import get_optional_user
+from app.core.auth import get_optional_user
 import logging
 
 router = APIRouter()
@@ -49,7 +49,8 @@ async def recommendations(
     # Build user preferences
     if clerk_id:
         # Logged-in user: fetch saved preferences from DB
-        user = await db.users.find_one({"clerk_id": clerk_id})
+        from bson import ObjectId
+        user = await db.users.find_one({"_id": ObjectId(clerk_id)})
         if user and "preferences" in user:
             prefs = user["preferences"]
             user_prefs = UserPreferences(

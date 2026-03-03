@@ -13,9 +13,9 @@ class QueryParameters(BaseModel):
     budget: int
 
 class TripBase(BaseModel):
-    clerk_id: str
+    user_id: str
     destination_id: str
-    query_parameters: QueryParameters
+    query_parameters: dict = Field(default_factory=dict)
     budget_breakdown: BudgetBreakdown
 
 class TripCreate(TripBase):

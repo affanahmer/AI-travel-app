@@ -1,10 +1,15 @@
+import { useAuthStore } from '@/store/useAuthStore';
+
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export async function fetchFromAPI(endpoint: string, options: RequestInit = {}) {
+    const token = useAuthStore.getState().token;
+
     const response = await fetch(`${API_URL}${endpoint}`, {
         ...options,
         headers: {
             'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...options.headers,
         },
     });
@@ -33,7 +38,7 @@ export interface Destination {
 
 export interface Trip {
     _id: string;
-    clerk_id: string;
+    user_id: string;
     destination_id: string;
     query_parameters: {
         days: number;
@@ -82,5 +87,25 @@ export const tripsApi = {
         method: 'POST',
         body: JSON.stringify(tripData),
     }),
-    getMyTrips: (clerkId: string) => fetchFromAPI(`/trips/my-trips?clerk_id=${clerkId}`),
+    getMyTrips: () => fetchFromAPI('/trips/my-trips'),
+    deleteTrip: (tripId: string) => fetchFromAPI(`/trips/my-trips/${tripId}`, {
+        method: 'DELETE',
+    }),
+};
+
+// Users API
+export const usersApi = {
+    login: (data: any) => fetchFromAPI('/users/login', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
+    register: (data: any) => fetchFromAPI('/users/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    }),
+    getProfile: () => fetchFromAPI('/users/profile'),
+    updatePreferences: (data: any) => fetchFromAPI('/users/preferences', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    }),
 };

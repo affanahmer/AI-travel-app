@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.services.db import connect_to_mongo, close_mongo_connection
-from app.api import webhooks, destinations, search, trips, users
+from app.api import destinations, search, trips, users
 import logging
 
 # Configure logging
@@ -40,8 +40,7 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(webhooks.router,     prefix="/api/webhooks",        tags=["Webhooks"])
-app.include_router(users.router,        prefix="/api/users",           tags=["Users"])
+app.include_router(users.router,        prefix="/api/users",           tags=["Users & Auth"])
 app.include_router(destinations.router, prefix="/api/destinations",    tags=["Destinations"])
 app.include_router(search.router,       prefix="/api/search",          tags=["Search & AI"])
 app.include_router(trips.router,        prefix="/api/trips",           tags=["Trips & Budget"])

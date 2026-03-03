@@ -9,8 +9,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Travel Companion API"
     MONGODB_URL: str = "mongodb://localhost:27017"
     DATABASE_NAME: str = "travel_db"
-    CLERK_SECRET_KEY: str = ""
-    WEBHOOK_SECRET: str = ""
+    JWT_SECRET_KEY: str = "ai-travel-app-secret-key-change-in-production"
     ALLOWED_ORIGINS_STR: str = "http://localhost:3000"
     
     @property
