@@ -53,9 +53,17 @@ async def save_trip(
     """Saves generated trip to user profile."""
     db = get_database()
     
+    destination_id = payload.get("destination_id")
+    destination_name = "Unknown Destination"
+    if destination_id and ObjectId.is_valid(destination_id):
+        dest = await db.destinations.find_one({"_id": ObjectId(destination_id)})
+        if dest:
+            destination_name = dest.get("name", "Unknown Destination")
+
     trip_data = {
         "user_id": user_id,
-        "destination_id": payload.get("destination_id"),
+        "destination_id": destination_id,
+        "destination_name": destination_name,
         "query_parameters": payload.get("query_parameters", {}),
         "budget_breakdown": payload.get("budget_breakdown", {}),
     }

@@ -48,8 +48,8 @@ function AuthComponent() {
             } else {
                 router.push('/profile');
             }
-        } catch (err: any) {
-            setError(err.message || "An error occurred during authentication.");
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "An error occurred during authentication.");
         } finally {
             setLoading(false);
         }

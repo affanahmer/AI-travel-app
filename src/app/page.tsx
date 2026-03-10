@@ -6,13 +6,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Calendar, CircleDollarSign, Loader2 } from "lucide-react";
-import { HowItWorks } from "@/components/landing/HowItWorks";
 import { TravelSuggestions } from "@/components/landing/TravelSuggestions";
 import { TrendingDestinations } from "@/components/landing/TrendingDestinations";
-import { TravelStyles } from "@/components/landing/TravelStyles";
-import { Testimonials } from "@/components/landing/Testimonials";
 import { BudgetEstimator } from "@/components/landing/BudgetEstimator";
-import { CtaSection } from "@/components/landing/CtaSection";
 import { usePerformance } from "@/hooks/use-performance";
 
 // Dynamic imports for heavy ReactBits components with no SSR
@@ -95,13 +91,9 @@ export default function Home() {
         </div>
       </section>
 
-      <HowItWorks />
       <TravelSuggestions />
       <TrendingDestinations />
-      <TravelStyles />
-      <Testimonials />
       <BudgetEstimator />
-      <CtaSection />
     </div>
   );
 }

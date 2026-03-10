@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { MapPin, CloudSun, Star, Search as SearchIcon, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import React from 'react';
+import { SaveTripButton } from "@/components/search/SaveTripButton";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -105,7 +106,7 @@ export default async function SearchPage({
 
     // Fetch budget breakdowns for top results
     const days = parsedParams.days || 3;
-    const budgets: Record<string, any> = {};
+    const budgets: Record<string, { days?: number; hotel: number; travel: number; meals: number; total: number }> = {};
     for (const dest of results.slice(0, 6)) {
         if (dest._id) {
             const breakdown = await getBudgetBreakdown(dest._id, days);
@@ -273,9 +274,22 @@ export default async function SearchPage({
                                                 <span>Best in</span>
                                                 <span className="font-medium text-foreground">{dest.best_season}</span>
                                             </div>
-                                            <Button size="sm">
-                                                Plan Details <ChevronRight className="ml-1 h-4 w-4" />
-                                            </Button>
+                                            <div className="flex gap-2">
+                                                <SaveTripButton
+                                                    destinationId={dest._id}
+                                                    days={budget ? budget.days || days : days}
+                                                    budget={parsedBudget || dest.cost}
+                                                    budgetBreakdown={budget ? {
+                                                        hotel: budget.hotel,
+                                                        travel: budget.travel,
+                                                        meals: budget.meals,
+                                                        total: budget.total
+                                                    } : null}
+                                                />
+                                                <Button size="sm" variant="outline">
+                                                    Plan Details <ChevronRight className="ml-1 h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     </CardFooter>
                                 </Card>

@@ -199,7 +199,7 @@ export default function ProfilePage() {
                                 </div>
                             ) : trips.length === 0 ? (
                                 <Card className="p-12 text-center border-dashed">
-                                    <p className="text-muted-foreground">You haven't saved any trips yet.</p>
+                                    <p className="text-muted-foreground">You haven&apos;t saved any trips yet.</p>
                                     <Button className="mt-4" onClick={() => router.push('/search')}>
                                         Start Exploring
                                     </Button>
@@ -218,7 +218,7 @@ export default function ProfilePage() {
                                             </Button>
 
                                             <div className="w-full text-left">
-                                                <h3 className="font-bold text-lg mb-1">{trip.destination_id}</h3>
+                                                <h3 className="font-bold text-lg mb-1">{trip.destination_name || trip.destination_id}</h3>
                                                 <div className="flex flex-wrap gap-2 mt-2">
                                                     <Badge variant="outline">{trip.query_parameters.budget?.toLocaleString() || 0} PKR Budget</Badge>
                                                     <Badge variant="outline">{trip.query_parameters.days || 3} Days</Badge>

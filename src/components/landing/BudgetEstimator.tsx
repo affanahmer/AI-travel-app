@@ -30,18 +30,22 @@ export function BudgetEstimator() {
 
     // Fetch all destinations once
     useEffect(() => {
+        let isMounted = true;
+
         async function fetchDestinations() {
             try {
                 const res = await fetch(`${API_URL}/destinations/`);
                 if (res.ok) {
                     const data = await res.json();
-                    setDestinations(data);
+                    if (isMounted) setDestinations(data);
                 }
             } catch (err) {
                 console.error("Failed to fetch destinations:", err);
             }
         }
+
         fetchDestinations();
+        return () => { isMounted = false; };
     }, []);
 
     // Update top match when budget or destinations change
@@ -65,13 +69,13 @@ export function BudgetEstimator() {
                 : destinations.sort((a, b) => a.cost - b.cost)[0];
 
         if (newMatch && newMatch._id !== topMatch?._id) {
-            setAnimating(true);
+            queueMicrotask(() => setAnimating(true));
             setTimeout(() => {
                 setTopMatch(newMatch);
                 setAnimating(false);
             }, 200);
         } else if (!topMatch) {
-            setTopMatch(newMatch);
+            queueMicrotask(() => setTopMatch(newMatch));
         }
     }, [budget, destinations, topMatch]);
 
@@ -128,7 +132,7 @@ export function BudgetEstimator() {
                     <div className="relative">
                         <div className="absolute -inset-4 bg-primary/10 rounded-3xl transform -rotate-3 z-0"></div>
 
-                        <SpotlightCard className="relative z-10 overflow-hidden border-0 shadow-2xl h-72 !p-0 bg-zinc-900" spotlightColor="rgba(255, 255, 255, 0.2)">
+                        <SpotlightCard className="relative z-10 overflow-hidden border-0 shadow-2xl min-h-96 !p-0 bg-zinc-900" spotlightColor="rgba(255, 255, 255, 0.2)">
                             <div className={`h-full relative pointer-events-none transition-opacity duration-300 ${animating ? 'opacity-0' : 'opacity-100'}`}>
                                 {/* Destination Image */}
                                 {imageSrc && (
@@ -169,6 +173,38 @@ export function BudgetEstimator() {
                                             ~{topMatch?.cost.toLocaleString() || "—"} PKR
                                         </span>
                                     </div>
+
+                                    {/* Budget Breakdown Table */}
+                                    {topMatch && topMatch.cost > 0 && (
+                                        <div className="mt-4 pt-4 border-t border-white/20">
+                                            <table className="w-full text-xs text-left text-white/90">
+                                                <thead>
+                                                    <tr>
+                                                        <th className="pb-2 font-semibold border-b border-white/20">Item</th>
+                                                        <th className="pb-2 font-semibold text-right border-b border-white/20">Cost (PKR)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td className="py-1.5">Hotel</td>
+                                                        <td className="py-1.5 text-right">{(topMatch.cost * 0.4).toLocaleString()}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="py-1.5">Travel</td>
+                                                        <td className="py-1.5 text-right">{(topMatch.cost * 0.4).toLocaleString()}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="py-1.5 border-b border-white/20">Meals</td>
+                                                        <td className="py-1.5 text-right border-b border-white/20">{(topMatch.cost * 0.2).toLocaleString()}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="py-2 font-bold text-white">Total</td>
+                                                        <td className="py-2 font-bold text-right text-white">{(topMatch.cost).toLocaleString()}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </SpotlightCard>

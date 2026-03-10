@@ -1,0 +1,20 @@
+
+> ai-travel-app@0.1.0 dev
+> next dev
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.18.4:3000
+- Environments: .env.local
+
+Γ£ô Starting...
+Γ£ô Ready in 1318ms
+ GET / 200 in 952ms (compile: 394ms, render: 558ms)
+ GET /auth 200 in 108ms (compile: 58ms, render: 50ms)
+ GET /auth 200 in 23ms (compile: 3ms, render: 20ms)
+ GET / 200 in 151ms (compile: 12ms, render: 139ms)
+ GET /auth 200 in 45ms (compile: 4ms, render: 41ms)
+ GET /auth?register=true 200 in 43ms (compile: 9ms, render: 34ms)
+ GET /auth?register=true 200 in 96ms (compile: 4ms, render: 92ms)
+ GET / 200 in 35ms (compile: 7ms, render: 28ms)
+ GET /search?q=relaxing+beach+destinations+for+unwinding 200 in 13.1s (compile: 122ms, render: 13.0s)

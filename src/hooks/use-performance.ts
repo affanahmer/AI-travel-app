@@ -48,7 +48,7 @@ function detectWeakGPU(): boolean {
         }
 
         // Check device memory if available
-        if ('deviceMemory' in navigator && (navigator as any).deviceMemory <= 2) {
+        if ('deviceMemory' in navigator && (navigator as Record<string, unknown>).deviceMemory as number <= 2) {
             return true;
         }
 

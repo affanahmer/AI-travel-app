@@ -29,7 +29,9 @@ const Magnet: React.FC<MagnetProps> = ({
 
   // Use refs for config so the listener doesn't need to be re-attached
   const configRef = useRef({ padding, disabled, magnetStrength, activeTransition, inactiveTransition });
-  configRef.current = { padding, disabled, magnetStrength, activeTransition, inactiveTransition };
+  useEffect(() => {
+    configRef.current = { padding, disabled, magnetStrength, activeTransition, inactiveTransition };
+  }, [padding, disabled, magnetStrength, activeTransition, inactiveTransition]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!magnetRef.current || !innerRef.current) return;

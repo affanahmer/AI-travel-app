@@ -16,7 +16,13 @@ export async function fetchFromAPI(endpoint: string, options: RequestInit = {}) 
 
     if (!response.ok) {
         const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
-        throw new Error(error.detail || 'API request failed');
+        let errorMessage = 'API request failed';
+        if (typeof error.detail === 'string') {
+            errorMessage = error.detail;
+        } else if (Array.isArray(error.detail)) {
+            errorMessage = error.detail.map((e: { msg: string }) => e.msg).join(', ');
+        }
+        throw new Error(errorMessage);
     }
 
     return response.json();
@@ -40,6 +46,7 @@ export interface Trip {
     _id: string;
     user_id: string;
     destination_id: string;
+    destination_name?: string;
     query_parameters: {
         days: number;
         budget: number;
@@ -71,7 +78,7 @@ export const searchApi = {
         method: 'POST',
         body: JSON.stringify({ query }),
     }),
-    getRecommendations: (query: string, params?: any) => fetchFromAPI('/search/recommendations', {
+    getRecommendations: (query: string, params?: Record<string, unknown>) => fetchFromAPI('/search/recommendations', {
         method: 'POST',
         body: JSON.stringify({ query, params }),
     }),
@@ -83,7 +90,7 @@ export const tripsApi = {
         method: 'POST',
         body: JSON.stringify({ destination_id: destinationId, days }),
     }),
-    save: (tripData: any) => fetchFromAPI('/trips/save', {
+    save: (tripData: Record<string, unknown>) => fetchFromAPI('/trips/save', {
         method: 'POST',
         body: JSON.stringify(tripData),
     }),
@@ -95,16 +102,16 @@ export const tripsApi = {
 
 // Users API
 export const usersApi = {
-    login: (data: any) => fetchFromAPI('/users/login', {
+    login: (data: Record<string, unknown>) => fetchFromAPI('/users/login', {
         method: 'POST',
         body: JSON.stringify(data),
     }),
-    register: (data: any) => fetchFromAPI('/users/register', {
+    register: (data: Record<string, unknown>) => fetchFromAPI('/users/register', {
         method: 'POST',
         body: JSON.stringify(data),
     }),
     getProfile: () => fetchFromAPI('/users/profile'),
-    updatePreferences: (data: any) => fetchFromAPI('/users/preferences', {
+    updatePreferences: (data: Record<string, unknown>) => fetchFromAPI('/users/preferences', {
         method: 'PUT',
         body: JSON.stringify(data),
     }),
