@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     MONGODB_URL: str = "mongodb://localhost:27017"
     DATABASE_NAME: str = "travel_db"
     JWT_SECRET_KEY: str = "ai-travel-app-secret-key-change-in-production"
-    ALLOWED_ORIGINS_STR: str = "http://localhost:3000"
+    ALLOWED_ORIGINS_STR: str = "http://localhost:3000,http://localhost:3001,http://localhost:3002"
     
     @property
     def ALLOWED_ORIGINS(self) -> List[str]:
